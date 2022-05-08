@@ -395,3 +395,40 @@ Promise.any([rejected, alsoRejected]).catch(function (results) {
   console.log(results); // [-1, Infinity]
 });
 ```
+
+## Promise.resolve()
+
+```js
+setTimeout(function () {
+  console.log("three");
+}, 0);
+
+Promise.resolve().then(function () {
+  console.log("two");
+});
+
+console.log("one");
+
+// one
+// two
+// three
+```
+
+上面代码中，setTimeout(fn, 0)在下一轮“事件循环”开始时执行，Promise.resolve()在本轮“事件循环”结束时执行，console.log('one')则是立即执行，因此最先输出。
+
+## Promise.reject()
+
+Promise.reject(reason)方法也会返回一个新的 Promise 实例，该实例的状态为 rejected。
+
+```js
+const p = Promise.reject("出错了");
+// 等同于
+const p = new Promise((resolve, reject) => reject("出错了"));
+
+p.then(null, function (s) {
+  console.log(s);
+});
+// 出错了
+```
+
+上面代码生成一个 Promise 对象的实例 p，状态为 rejected，回调函数会立即执行。
