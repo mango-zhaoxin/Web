@@ -119,3 +119,102 @@ p2.then((result) => console.log(result)).catch((error) => console.log(error));
 ```
 
 上面代码中，p1 是一个 Promise，3 秒之后变为 rejected。p2 的状态在 1 秒之后改变，resolve 方法返回的是 p1。由于 p2 返回的是另一个 Promise，导致 p2 自己的状态无效了，由 p1 的状态决定 p2 的状态。所以，后面的 then 语句都变成针对后者（p1）。又过了 2 秒，p1 变为 rejected，导致触发 catch 方法指定的回调函数。
+
+## promise.then
+
+then 方法的第一个参数是 resolved 状态的回调函数，第二个参数是 rejected 状态的回调函数，它们都是可选的。
+
+then 方法返回的是一个新的 Promise 实例（注意，不是原来那个 Promise 实例）。因此可以采用链式写法，即 then 方法后面再调用另一个 then 方法。
+
+## promise.then.catch
+
+一般来说，不要在 then()方法里面定义 Reject 状态的回调函数（即 then 的第二个参数），总是使用 catch 方法。
+
+```js
+// bad
+promise.then(
+  function (data) {
+    // success
+  },
+  function (err) {
+    // error
+  }
+);
+
+// good
+promise
+  .then(function (data) {
+    //cb
+    // success
+  })
+  .catch(function (err) {
+    // error
+  });
+```
+
+上面代码中，第二种写法要好于第一种写法，理由是第二种写法可以捕获前面 then 方法执行中的错误，也更接近同步的写法（try/catch）。因此，建议总是使用 catch()方法，而不使用 then()方法的第二个参数。
+
+注意：
+
+如果没有使用 catch()方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。
+
+```js
+const someAsyncThing = function () {
+  return new Promise(function (resolve, reject) {
+    // 下面一行会报错，因为x没有声明
+    resolve(x + 2);
+  });
+};
+
+someAsyncThing().then(function () {
+  console.log("everything is great");
+});
+
+setTimeout(() => {
+  console.log(123);
+}, 2000);
+// Uncaught (in promise) ReferenceError: x is not defined
+// 123
+```
+
+上面代码中，someAsyncThing()函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示 ReferenceError: x is not defined，但是不会退出进程、终止脚本执行，2 秒之后还是会输出 123。这就是说，Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”。
+
+一般总是建议，Promise 对象后面要跟 catch()方法，这样可以处理 Promise 内部发生的错误。catch()方法返回的还是一个 Promise 对象，因此后面还可以接着调用 then()方法。
+
+```js
+const someAsyncThing = function () {
+  return new Promise(function (resolve, reject) {
+    // 下面一行会报错，因为x没有声明
+    resolve(x + 2);
+  });
+};
+
+someAsyncThing()
+  .catch(function (error) {
+    console.log("oh no", error);
+  })
+  .then(function () {
+    console.log("carry on");
+  });
+// oh no [ReferenceError: x is not defined]
+// carry on
+```
+
+上面代码运行完 catch()方法指定的回调函数，会接着运行后面那个 then()方法指定的回调函数。如果没有报错，则会跳过 catch()方法。
+
+```js
+Promise.resolve()
+  .catch(function (error) {
+    console.log("oh no", error);
+  })
+  .then(function () {
+    console.log("carry on");
+  });
+// carry on
+```
+
+上面的代码因为没有报错，跳过了 catch()方法，直接执行后面的 then()方法。此时，要是 then()方法里面报错，就与前面的 catch()无关了。
+
+如果这个时候，想要去监听 .then 函数里面的报错信息，就需要在后面加一个 catch 函数，这样，后面的这一个 catch 函数就能够监听到 then 函数里面的报错
+
+## promise.finally
