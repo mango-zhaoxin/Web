@@ -218,3 +218,180 @@ Promise.resolve()
 如果这个时候，想要去监听 .then 函数里面的报错信息，就需要在后面加一个 catch 函数，这样，后面的这一个 catch 函数就能够监听到 then 函数里面的报错
 
 ## promise.finally
+
+```js
+// resolve 的值是 undefined
+Promise.resolve(2).then(
+  () => {},
+  () => {}
+);
+
+// resolve 的值是 2
+Promise.resolve(2).finally(() => {});
+
+// reject 的值是 undefined
+Promise.reject(3).then(
+  () => {},
+  () => {}
+);
+
+// reject 的值是 3
+Promise.reject(3).finally(() => {});
+```
+
+## promise.all
+
+Promise.all()方法用于将多个 Promise 实例，包装成一个新的 Promise 实例。
+
+入参：
+
+一个数组，数字里面的每个元素必须是 promise 的实例
+
+比如：
+
+```js
+const p = Promise.all([p1, p2, p3]);
+```
+
+p1、p2、p3 都是 Promise 实例
+
+promise.all()方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例。
+
+注意：
+
+1. p 的状态由 p1、p2、p3 决定，分成两种情况。
+
+- （1）只有 p1、p2、p3 的状态都变成 fulfilled，p 的状态才会变成 fulfilled，此时 p1、p2、p3 的返回值组成一个数组，传递给 p 的回调函数
+
+* （2）只要 p1、p2、p3 之中有一个被 rejected，p 的状态就变成 rejected，此时第一个被 reject 的实例的返回值，会传递给 p 的回调函数。
+
+来看一个例子加深一下理解：
+
+```js
+const p1 = new Promise((resolve, reject) => {
+  resolve("hello");
+})
+  .then((result) => result)
+  .catch((e) => e);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error("报错了");
+})
+  .then((result) => result)
+  .catch((e) => e);
+
+Promise.all([p1, p2])
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+```
+
+上面代码中，p1 会 resolved，p2 首先会 rejected，但是 p2 有自己的 catch 方法，该方法返回的是一个新的 Promise 实例，p2 指向的实际上是这个实例。该实例执行完 catch 方法后，也会变成 resolved，导致 Promise.all()方法参数里面的两个实例都会 resolved，因此会调用 then 方法指定的回调函数，而不会调用 catch 方法指定的回调函数。
+
+如果 p2 没有自己的 catch 方法，就会调用 Promise.all()的 catch 方法。
+
+```js
+const p1 = new Promise((resolve, reject) => {
+  resolve("hello");
+}).then((result) => result);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error("报错了");
+}).then((result) => result);
+
+Promise.all([p1, p2])
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+// Error: 报错了
+```
+
+## Promise.race()
+
+```js
+const p = Promise.race([p1, p2, p3]);
+```
+
+上面代码中，只要 p1、p2、p3 之中有一个实例率先改变状态，p 的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给 p 的回调函数。
+
+## Promise.allSettled()
+
+Promise.all()方法只适合所有异步操作都成功的情况，只要有一个请求失败，它就会报错，而不管另外的请求是否结束。
+
+Promise.allSettled()方法，用来确定一组异步操作是否都结束了（不管成功或失败）。
+
+Promise.allSettled()方法接受一个数组作为参数，数组的每个成员都是一个 Promise 对象，并返回一个新的 Promise 对象。只有等到参数数组的所有 Promise 对象都发生状态变更（不管是 fulfilled 还是 rejected），返回的 Promise 对象才会发生状态变更。
+
+```js
+const promises = [fetch("/api-1"), fetch("/api-2"), fetch("/api-3")];
+
+await Promise.allSettled(promises);
+removeLoadingIndicator();
+```
+
+上面示例中，数组 promises 包含了三个请求，只有等到这三个请求都结束了（不管请求成功还是失败），removeLoadingIndicator()才会执行。
+
+```js
+const resolved = Promise.resolve(42);
+const rejected = Promise.reject(-1);
+
+const allSettledPromise = Promise.allSettled([resolved, rejected]);
+
+allSettledPromise.then(function (results) {
+  console.log(results);
+});
+// [
+//    { status: 'fulfilled', value: 42 },
+//    { status: 'rejected', reason: -1 }
+// ]
+```
+
+上面代码中，Promise.allSettled()的返回值 allSettledPromise，状态只可能变成 fulfilled。它的回调函数接收到的参数是数组 results。该数组的每个成员都是一个对象，对应传入 Promise.allSettled()的数组里面的两个 Promise 对象。
+
+results 的每个成员是一个对象，对象的格式是固定的，对应异步操作的结果。
+
+```js
+// 异步操作成功时
+{status: 'fulfilled', value: value}
+
+// 异步操作失败时
+{status: 'rejected', reason: reason}
+```
+
+成员对象的 status 属性的值只可能是字符串 fulfilled 或字符串 rejected，用来区分异步操作是成功还是失败。如果是成功（fulfilled），对象会有 value 属性，如果是失败（rejected），会有 reason 属性，对应两种状态时前面异步操作的返回值。
+
+## Promise.any()
+
+```js
+Promise.any([
+  fetch("https://v8.dev/").then(() => "home"),
+  fetch("https://v8.dev/blog").then(() => "blog"),
+  fetch("https://v8.dev/docs").then(() => "docs"),
+])
+  .then((first) => {
+    // 只要有一个 fetch() 请求成功
+    console.log(first);
+  })
+  .catch((error) => {
+    // 所有三个 fetch() 全部请求失败
+    console.log(error);
+  });
+```
+
+Promise.any()方法。该方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例返回。
+
+只要参数实例有一个变成 fulfilled 状态，包装实例就会变成 fulfilled 状态；如果所有参数实例都变成 rejected 状态，包装实例就会变成 rejected 状态。
+
+Promise.any()跟 Promise.race()方法很像，只有一点不同，就是 Promise.any()不会因为某个 Promise 变成 rejected 状态而结束，必须等到所有参数 Promise 变成 rejected 状态才会结束。
+
+```js
+var resolved = Promise.resolve(42);
+var rejected = Promise.reject(-1);
+var alsoRejected = Promise.reject(Infinity);
+
+Promise.any([resolved, rejected, alsoRejected]).then(function (result) {
+  console.log(result); // 42
+});
+
+Promise.any([rejected, alsoRejected]).catch(function (results) {
+  console.log(results); // [-1, Infinity]
+});
+```
