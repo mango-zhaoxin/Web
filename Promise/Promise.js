@@ -72,22 +72,37 @@ class MPromise {
             throw reason;
         }
 
+        const fulFilledFnWithCatch = (resolve, reject) => {
+            try {
+                fulFilledFn(this.value)
+            } catch (e) {
+                reject(e);
+            }
+        }
+
+        const rejectedFnWithCatch = (resolve, reject) => {
+            try {
+                rejectedFn(this.reason)
+            } catch (e) {
+                reject(e)
+            }
+        }
+
         // 6.2 根据当前的 Promise 状态，调用不同的函数
         switch (this.state) {
             case FULFILLED: {
-                fulFilledFn(this.value);
-                break;
+                return new MPromise(fulFilledFnWithCatch)
             }
 
             case REJECTED: {
-                rejectedFn(this.reason);
-                break;
+                return new MPromise(rejectedFnWithCatch)
             }
 
             case PENDING: {
-                this.FULFILLED_CALLBACK_LIST.push(realOnFulfilled);
-                this.REJECTED_CALLBACK_LIST.push(realOnRejected);
-                break;
+                return new MPromise((resolve, reject) => {
+                    this.FULFILLED_CALLBACK_LIST.push(() => fulFilledFnWithCatch(resolve, reject));
+                    this.REJECTED_CALLBACK_LIST.push(() => rejectedFnWithCatch(resolve, reject));
+                })
             }
         }
     }
