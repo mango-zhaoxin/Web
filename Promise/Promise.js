@@ -248,4 +248,16 @@ class MPromise {
     }
 }
 
+const test = new MPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(111);
+    }, 1000);
+}).then(console.log);
+
+console.log(test);
+
+setTimeout(() => {
+    console.log(test);
+}, 2000)
+
 
