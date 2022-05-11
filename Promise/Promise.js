@@ -77,29 +77,33 @@ class MPromise {
         // 如果 onFulfilled 或者 onRejected 返回一个值 x ，则运行resolvePromise方法
 
         const fulFilledFnWithCatch = (resolve, reject, newPromise) => {
-            try {
-                if (!this.isFunction(onFulfilled)) {
-                    resolve(this.value)
-                } else {
-                    const x = fulFilledFn(this.value);
-                    this.resolvePromise(newPromise, x, resolve, reject)
+            queueMicrotask(() => {
+                try {
+                    if (!this.isFunction(onFulfilled)) {
+                        resolve(this.value)
+                    } else {
+                        const x = fulFilledFn(this.value);
+                        this.resolvePromise(newPromise, x, resolve, reject)
+                    }
+                } catch (e) {
+                    reject(e);
                 }
-            } catch (e) {
-                reject(e);
-            }
+            })
         }
 
         const rejectedFnWithCatch = (resolve, reject, newPromise) => {
-            try {
-                if (!this.isFunction(onRejected)) {
-                    rejectedFn(this.reason);
-                } else {
-                    const x = rejectedFn(this.reason);
-                    this.resolvePromise(newPromise, x, resolve, reject)
+            queueMicrotask(() => {
+                try {
+                    if (!this.isFunction(onRejected)) {
+                        rejectedFn(this.reason);
+                    } else {
+                        const x = rejectedFn(this.reason);
+                        this.resolvePromise(newPromise, x, resolve, reject)
+                    }
+                } catch (e) {
+                    reject(e)
                 }
-            } catch (e) {
-                reject(e)
-            }
+            })
         }
 
         // 6.2 根据当前的 Promise 状态，调用不同的函数
