@@ -64,25 +64,39 @@ class MPromise {
 
     // 第六步：实现then方法
     then(onFulfilled, onRejected) {
-        const fulFilledFn = isFunction(onFulfilled) ? isFunction(onFulfilled) : (value) => {
+        const fulFilledFn = isFunction(onFulfilled) ? onFulfilled : (value) => {
             return value;
         }
 
-        const rejectedFn = isFunction(onRejected) ? isFunction(onRejected) : (reason) => {
+        const rejectedFn = isFunction(onRejected) ? onRejected : (reason) => {
             throw reason;
         }
 
-        const fulFilledFnWithCatch = (resolve, reject) => {
+        // 如果 onFulfilled 不是函数且 promise1 成功执行， promise2 必须成功执行并返回相同的值
+        // 如果 onRejected 不是函数且 promise1 拒绝执行， promise2 必须拒绝执行并返回相同的据因
+        // 如果 onFulfilled 或者 onRejected 返回一个值 x ，则运行resolvePromise方法
+
+        const fulFilledFnWithCatch = (resolve, reject, newPromise) => {
             try {
-                fulFilledFn(this.value)
+                if (!this.isFunction(onFulfilled)) {
+                    resolve(this.value)
+                } else {
+                    const x = fulFilledFn(this.value);
+                    this.resolvePromise(newPromise, x, resolve, reject)
+                }
             } catch (e) {
                 reject(e);
             }
         }
 
-        const rejectedFnWithCatch = (resolve, reject) => {
+        const rejectedFnWithCatch = (resolve, reject, newPromise) => {
             try {
-                rejectedFn(this.reason)
+                if (!this.isFunction(onRejected)) {
+                    rejectedFn(this.reason);
+                } else {
+                    const x = rejectedFn(this.reason);
+                    this.resolvePromise(newPromise, x, resolve, reject)
+                }
             } catch (e) {
                 reject(e)
             }
@@ -91,18 +105,21 @@ class MPromise {
         // 6.2 根据当前的 Promise 状态，调用不同的函数
         switch (this.state) {
             case FULFILLED: {
-                return new MPromise(fulFilledFnWithCatch)
+                const newPromise = new MPromise((resolve, reject) => fulFilledFnWithCatch(resolve, reject, newPromise))
+                return newPromise;
             }
 
             case REJECTED: {
-                return new MPromise(rejectedFnWithCatch)
+                const newPromise = new MPromise((resolve, reject) => rejectedFnWithCatch(resolve, reject, newPromise))
+                return newPromise
             }
 
             case PENDING: {
-                return new MPromise((resolve, reject) => {
-                    this.FULFILLED_CALLBACK_LIST.push(() => fulFilledFnWithCatch(resolve, reject));
-                    this.REJECTED_CALLBACK_LIST.push(() => rejectedFnWithCatch(resolve, reject));
+                const newPromise = new MPromise((resolve, reject) => {
+                    this.FULFILLED_CALLBACK_LIST.push(() => fulFilledFnWithCatch(resolve, reject, newPromise));
+                    this.REJECTED_CALLBACK_LIST.push(() => rejectedFnWithCatch(resolve, reject, newPromise));
                 })
+                return newPromise
             }
         }
     }
