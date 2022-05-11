@@ -203,8 +203,26 @@ class MPromise {
         }
     }
 
+    // 第八步：catch方法
     catch(onRejected) {
         return this.then(null, onRejected);
+    }
+
+    // 第九步：resolve 和 reject 方法
+    static resolve(value) {
+        if (value instanceof MPromise) {
+            return value;
+        }
+
+        return new MPromise((resolve) => {
+            resolve(value)
+        })
+    }
+
+    static reject(reason) {
+        return MPromise((resolve, reject) => {
+            reject(reason)
+        })
     }
 }
 
