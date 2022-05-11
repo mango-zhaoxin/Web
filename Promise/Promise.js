@@ -202,5 +202,10 @@ class MPromise {
             resolve(x);
         }
     }
+
+    catch(onRejected) {
+        return this.then(null, onRejected);
+    }
 }
+
 
