@@ -224,6 +224,28 @@ class MPromise {
             reject(reason)
         })
     }
+
+    static race(promiseList) {
+        return new MPromise((resolve, reject) => {
+            const length = promiseList.length;
+
+            if (length === 0) {
+                return resolve();
+            } else {
+                for (let i = 0; i < length; i++) {
+                    MPromise.resolve(promiseList[i]).then(
+                        (value) => {
+                            resolve(value)
+                        },
+                        (reason) => {
+                            reject(reason)
+                        }
+                    )
+                }
+            }
+        })
+
+    }
 }
 
 
