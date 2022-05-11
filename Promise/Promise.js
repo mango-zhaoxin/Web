@@ -33,5 +33,34 @@ class MPromise {
             this.reason = reason;
         }
     }
+
+    // 第六步：实现then方法
+    then(onFulfilled, onRejected) {
+        const fulFilledFn = isFunction(onFulfilled) ? isFunction(onFulfilled) : (value) => {
+            return value;
+        }
+
+        const rejectedFn = isFunction(onRejected) ? isFunction(onRejected) : (reason) => {
+            throw reason;
+        }
+
+        // 根据当前的 Promise 状态，调用不同的函数
+        switch (this.state) {
+            case FULFILLED: {
+                fulFilledFn(this.value);
+                break;
+            }
+
+            case REJECTED: {
+                rejectedFn(this.reason);
+                break;
+            }
+        }
+    }
+
+    // 检查并处理参数，之前提到的如果不是 function, 就忽略. 这个忽略指的是原样返回 value 或 reason
+    isFunction(param) {
+        return typeof param === 'function'
+    }
 }
 
