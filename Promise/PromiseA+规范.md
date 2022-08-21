@@ -53,19 +53,24 @@ promise.then(onFulfilled, onRejected);
 1. 参数要求
 
    1.1 onFulfilled 必须是函数类型, 如果不是函数, 应该被忽略.
+   
    1.2 onRejected 必须是函数类型, 如果不是函数, 应该被忽略.
 
 2. onFulfilled 特性
 
-   2.1 在 promise 变成 fulfilled 时，应该调用 onFulfilled, 参数是 value
+   2.1 在 promise 变成 fulfilled 时，应该调用 onFulfilled, 参数是 value.
+   
    2.2 在 promise 变成 fulfilled 之前, 不应该被调用.
-   2.3 只能被调用一次(所以在实现的时候需要一个变量来限制执行次数)
+   
+   2.3 只能被调用一次(所以在实现的时候需要一个变量来限制执行次数).
 
 3. onRejected 特性
 
-   3.1 在 promise 变成 rejected 时，应该调用 onRejected, 参数是 reason
+   3.1 在 promise 变成 rejected 时，应该调用 onRejected, 参数是 reason.
+   
    3.2 在 promise 变成 rejected 之前, 不应该被调用.
-   3.3 只能被调用一次(所以在实现的时候需要一个变量来限制执行次数)
+   
+   5.3 只能被调用一次(所以在实现的时候需要一个变量来限制执行次数).
 
 4. onFulfilled 和 onRejected 应该是微任务
 
@@ -74,6 +79,7 @@ promise.then(onFulfilled, onRejected);
 5. then 方法可以被调用多次
 
    5.1 promise 状态变成 fulfilled 后，所有的 onFulfilled 回调都需要按照 then 的顺序执行, 也就是按照注册顺序执行(所以在实现的时候需要一个数组来存放多个 onFulfilled 的回调)
+   
    5.2 promise 状态变成 rejected 后，所有的 onRejected 回调都需要按照 then 的顺序执行, 也就是按照注册顺序执行(所以在实现的时候需要一个数组来存放多个 onRejected 的回调)
 
 6. 返回值
