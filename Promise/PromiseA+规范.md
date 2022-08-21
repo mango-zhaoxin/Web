@@ -19,25 +19,33 @@ promise 应该有三种状态. 要注意他们之间的流转关系.
 1. pending
 
    1.1 初始的状态, 可改变.
-   1.2 一个 promise 在 resolve 或者 reject 前都处于这个状态。
-   1.3 可以通过 resolve -> fulfilled 状态;
-   1.4 可以通过 reject -> rejected 状态;
+   
+   1.2 一个 promise 在 resolve 或者 reject 前都处于这个状态.
+   
+   1.3 可以通过 resolve -> fulfilled 状态.
+   
+   1.4 可以通过 reject -> rejected 状态.
 
 2. fulfilled
 
    2.1 最终态, 不可变.
+   
    2.2 一个 promise 被 resolve 后会变成这个状态.
+   
    2.3 必须拥有一个 value 值
 
 3. rejected
 
    3.1 最终态, 不可变.
-   3.2 一个 promise 被 reject 后会变成这个状态
+   
+   3.2 一个 promise 被 reject 后会变成这个状态.
+   
    3.3 必须拥有一个 reason
 
 Tips: 总结一下, 就是 promise 的状态流转是这样的
 
 pending -> resolve(value) -> fulfilled
+
 pending -> reject(reason) -> rejected
 
 看一下图, 可能会更清晰一点, https://www.processon.com/diagraming/606569d1e401fd13004977d2
