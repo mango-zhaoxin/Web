@@ -84,10 +84,13 @@ promise.then(onFulfilled, onRejected);
    promise2 = promise1.then(onFulfilled, onRejected);
    ```
 
-   6.1 onFulfilled 或 onRejected 执行的结果为 x, 调用 resolvePromise( 这里大家可能难以理解, 可以先保留疑问, 下面详细讲一下 resolvePromise 是什么东西 )
-   6.2 如果 onFulfilled 或者 onRejected 执行时抛出异常 e, promise2 需要被 reject
-   6.3 如果 onFulfilled 不是一个函数, promise2 以 promise1 的 value 触发 fulfilled
-   6.4 如果 onRejected 不是一个函数, promise2 以 promise1 的 reason 触发 rejected
+   6.1 onFulfilled 或 onRejected 执行的结果为 x, 调用 resolvePromise( 这里大家可能难以理解, 可以先保留疑问, 下面详细讲一下 resolvePromise 是什么东西 ).
+  
+   6.2 如果 onFulfilled 或者 onRejected 执行时抛出异常 e, promise2 需要被 reject.
+   
+   6.3 如果 onFulfilled 不是一个函数, promise2 以 promise1 的 value 触发 fulfilled.
+   
+   6.4 如果 onRejected 不是一个函数, promise2 以 promise1 的 reason 触发 rejected.
 
 7. resolvePromise
 
