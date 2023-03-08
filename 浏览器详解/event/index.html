@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+  <body>
+    <div id="parent" class="flex-center">
+        parent
+        <p id="child" class="flex-center">
+            child
+            <span id='son' class="flex-center">
+                son
+                <a href="https://www.baidu.com" id="a-baidu">点我啊</a>
+            </span>
+        </p>
+    </div>
+  </body>
+  <script type="text/javascript" src="./index.js"></script>
+  <style>
+    #parent {
+        background-color: bisque;
+        width: 700px;
+        height: 700px;
+
+    }
+
+    #child {
+        background-color: chocolate;
+        width: 500px;
+        height: 500px;
+    }
+
+    #son {
+        background-color: crimson;
+        width: 300px;
+        height: 300px;
+    }
+
+    .flex-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+    }
+  </style>
+</html>
