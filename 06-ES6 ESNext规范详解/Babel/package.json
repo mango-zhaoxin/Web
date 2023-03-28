@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@babel/core": "^7.21.3",
+    "babel-template": "^6.26.0"
+  }
+}
