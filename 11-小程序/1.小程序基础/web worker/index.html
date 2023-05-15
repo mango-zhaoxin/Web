@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小程序双线程模型模拟实现</title>
+    <script src="./template.js"></script>
+    <script src="./event.js"></script>
+    <script src="./main.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <!-- template模板使用
+    <div id="template-list">我的数据：</div>
+    <script type="text/html" id="template1">
+        <ul>
+            <% for(var i = 0; i < list.length; i++) { %>
+                <li>
+                    <p><%= list[i].name %></p>
+                    <p><%= list[i].sex %></p>
+                </li>
+            <% } %>
+        </ul>  
+    </script> -->
+
+    <!-- <script>
+        // 准备好的数据源，可以是通过网络获取的 json 数据，也可以是通过 ajax 从后台获取的数据
+        var data = [
+            {name: '张三',sex: '男'},
+            {name: '李四',sex: '男'},
+            {name: '王五',sex: '男'},
+            {name: '丽丽',sex: '女'}
+        ]
+
+        // 模板渲染
+        var template1 = document.getElementById('template1').innerHTML;
+        document.getElementById('template-list').innerHTML = template(template1, {list: data});
+    </script> -->
+    
+</body>
+</html>
